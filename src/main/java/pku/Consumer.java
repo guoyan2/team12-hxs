@@ -27,11 +27,11 @@ public class Consumer {
         ByteMessage re = null;
         re = demoMessageStore.pull(topics.get(readPos));
 
-        if(re==null){
+        if (re == null) {
             readPos++;
-            if(readPos<topics.size()) return poll();
+            if (readPos < topics.size()) return poll();
             return null;
-        }else {
+        } else {
             return re;
         }
 

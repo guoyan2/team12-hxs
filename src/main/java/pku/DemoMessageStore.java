@@ -2,19 +2,12 @@ package pku;
 
 import java.io.*;
 import java.lang.reflect.Method;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -69,11 +62,11 @@ public class DemoMessageStore {
         }
         BufferedInputStream bufferedInputStream = bufferInput.get(toc);
 
-        byte[] byteHeaderLength = null;
-        byte[] headerContent = null;
-        byte[] byteBodyLength = null;
-        byte[] bodyContent = null;
-        String header = null;
+        byte[] byteHeaderLength;
+        byte[] headerContent;
+        byte[] byteBodyLength;
+        byte[] bodyContent;
+        String header;
 
         byteHeaderLength = new byte[4];
         int ret = bufferedInputStream.read(byteHeaderLength);
@@ -248,7 +241,7 @@ public class DemoMessageStore {
         return result.getBytes();
     }
 
-    private static byte[] intToByteArray(int a) throws IOException {
+    private static byte[] intToByteArray(int a) {
         byte[] b = new byte[]{
                 (byte) ((a >> 24) & 0xFF),
                 (byte) ((a >> 16) & 0xFF),

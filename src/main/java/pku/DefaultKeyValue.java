@@ -8,7 +8,7 @@ import java.util.Set;
  * Created by yangxiao on 2017/11/14.
  * 一个Key-Value的实现
  */
-public class DefaultKeyValue implements KeyValue,Serializable{
+public class DefaultKeyValue implements KeyValue, Serializable {
     private final HashMap<String, Object> kvs = new HashMap<>();
 
     public Object getObj(String key) {
@@ -16,7 +16,7 @@ public class DefaultKeyValue implements KeyValue,Serializable{
         return kvs.get(key);
     }
 
-    public HashMap<String, Object> getMap(){
+    public HashMap<String, Object> getMap() {
 
         return kvs;
     }
@@ -42,17 +42,17 @@ public class DefaultKeyValue implements KeyValue,Serializable{
     }
 
     public int getInt(String key) {
-        return Integer.parseInt((String)kvs.getOrDefault(key, 0));
+        return Integer.parseInt((String) kvs.getOrDefault(key, 0));
     }
 
     public long getLong(String key) {
 
-        return Long.parseLong((String)kvs.getOrDefault(key, 0L));
+        return Long.parseLong((String) kvs.getOrDefault(key, 0L));
     }
 
     public double getDouble(String key) {
 
-        return Double.parseDouble((String)kvs.getOrDefault(key, 0.0d));
+        return Double.parseDouble((String) kvs.getOrDefault(key, 0.0d));
     }
 
     public String getString(String key) {
@@ -70,9 +70,9 @@ public class DefaultKeyValue implements KeyValue,Serializable{
         return kvs.containsKey(key);
     }
 
-    public String getKey(){
+    public String getKey() {
         Set<String> strings = kvs.keySet();
-        for (String s:strings) {
+        for (String s : strings) {
             return s;
         }
         return null;

@@ -14,7 +14,7 @@ public interface KeyValue {
 
     public HashMap<String, Object> getMap();
 
-    public KeyValue put(String key, int value) ;
+    public KeyValue put(String key, int value);
 
     public KeyValue put(String key, long value);
 

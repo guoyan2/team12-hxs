@@ -1,12 +1,9 @@
 package pku;
 
-import java.io.Serializable;
-
 /**
  * Created by yangxiao on 2017/11/14.
- *
  */
-public class DefaultMessage implements ByteMessage{
+public class DefaultMessage implements ByteMessage {
 
     private KeyValue headers = new DefaultKeyValue();
     private byte[] body;
