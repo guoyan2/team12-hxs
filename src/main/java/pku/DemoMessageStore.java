@@ -21,11 +21,11 @@ public class DemoMessageStore {
     //暂存数据集合
     static HashMap<String, ArrayList<ByteMessage>> msgs = new HashMap<>();
     //维护buffer流
-    static HashMap<String, BufferedInputStream> bufferInput = new HashMap<>();
+    private static HashMap<String, BufferedInputStream> bufferInput = new HashMap<>();
     //push的次数
-    static AtomicInteger count = new AtomicInteger(0);
+    private static AtomicInteger count = new AtomicInteger(0);
     //是否有data文件夹
-    static boolean Is_Dir = false;
+    private static boolean Is_Dir = false;
 
     static void push(ByteMessage msg, String topic) throws Exception {
 
@@ -36,7 +36,7 @@ public class DemoMessageStore {
             Is_Dir = true;
         }
 
-        if(count.get()>50000){
+        if(count.get()>30000){
             save();
             msgs.clear();
             count.set(0);
@@ -52,7 +52,7 @@ public class DemoMessageStore {
         count.incrementAndGet();
     }
 
-    static ByteMessage pull(String topic) throws IOException, DataFormatException {
+    static ByteMessage pull(String topic) throws IOException {
 
         String toc = topic + Thread.currentThread().getName();
         if (!bufferInput.containsKey(toc)) {
@@ -165,7 +165,7 @@ public class DemoMessageStore {
     private static void save() throws Exception {
 
         FileOutputStream fos;
-        BufferedOutputStream bos = null;
+        BufferedOutputStream bos;
 
         for (String topic : msgs.keySet()) {
 

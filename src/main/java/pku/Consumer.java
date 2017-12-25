@@ -23,8 +23,8 @@ public class Consumer {
         topics.addAll(t);
     }
 
-    public ByteMessage poll() throws IOException, DataFormatException {
-        ByteMessage re = null;
+    public ByteMessage poll() throws IOException {
+        ByteMessage re;
         re = demoMessageStore.pull(topics.get(readPos));
 
         if (re == null) {
