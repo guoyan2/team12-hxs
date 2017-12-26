@@ -20,7 +20,7 @@ public class Producer {
 
     public void flush() throws Exception {
         synchronized (DemoMessageStore.msgs) {
-            DemoMessageStore.lastsave();
+            DemoMessageStore.lastSave();
         }
     }
 

@@ -36,7 +36,8 @@ public class DemoMessageStore {
             Is_Dir = true;
         }
 
-        if(count.get()>30000){
+        //count从50000到30000到80000到100000，发现80000效率最高，至于为什么，我们也不知道
+        if(count.get()>80000){
             save();
             msgs.clear();
             count.set(0);
@@ -102,15 +103,11 @@ public class DemoMessageStore {
 
         if (flag == 1){
             try {
-                bodyContent = decompressByte(bodyContent);
-                intBodyLength = bodyContent.length;
+                bodyContent = decompressByte(bodyContent);//解压消息体
             } catch (DataFormatException e) {
                 e.printStackTrace();
             }
         }
-
-
-
 
         DefaultKeyValue keyValue = makeKeyValue(header);
         DefaultMessage message = new DefaultMessage(bodyContent);
@@ -215,7 +212,6 @@ public class DemoMessageStore {
                 bos.write(body);
 
             }
-            byteMessages = null;
             bos.flush();
             fos.close();
             bos.close();
@@ -273,23 +269,22 @@ public class DemoMessageStore {
 
     //int转为byte
     private static byte[] intToByteArray(int a) {
-        byte[] b = new byte[]{
+        return new byte[]{
                 (byte) ((a >> 24) & 0xFF),
                 (byte) ((a >> 16) & 0xFF),
                 (byte) ((a >> 8) & 0xFF),
                 (byte) (a & 0xFF)
         };
-        return b;
     }
 
     //最后当push没有到达次数的时候要序列化
-    public static void lastsave() throws Exception {
+    public static void lastSave() throws Exception {
         save();
         msgs.clear();
         count.set(0);
     }
 
-    public static byte[] compressByte(byte[] input) throws IOException {
+    private static byte[] compressByte(byte[] input) throws IOException {
 
         Deflater compressor = new Deflater();
         compressor.setLevel(Deflater.BEST_COMPRESSION);
@@ -304,23 +299,21 @@ public class DemoMessageStore {
             bos.write(buf, 0, count);
         }
         bos.close();
-        byte[] compressedData = bos.toByteArray();
-        return compressedData;
+        return bos.toByteArray();
 
     }
 
-    public static byte[] decompressByte(byte[] compressedData) throws DataFormatException, IOException {
-        Inflater decompressor = new Inflater();
-        decompressor.setInput(compressedData);
+    private static byte[] decompressByte(byte[] compressedData) throws DataFormatException, IOException {
+        Inflater deCompressor = new Inflater();
+        deCompressor.setInput(compressedData);
         ByteArrayOutputStream bos = new ByteArrayOutputStream(compressedData.length);
         byte[] buf = new byte[1024];
-        while (!decompressor.finished()) {
-            int count = decompressor.inflate(buf);
+        while (!deCompressor.finished()) {
+            int count = deCompressor.inflate(buf);
             bos.write(buf, 0, count);
 
         }
         bos.close();
-        byte[] decompressedData = bos.toByteArray();
-        return decompressedData;
+        return bos.toByteArray();
     }
 }
