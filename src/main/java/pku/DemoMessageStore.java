@@ -46,6 +46,7 @@ public class DemoMessageStore {
         if (!msgs.containsKey(topic)) {
             msgs.put(topic, new ArrayList<>(10000));
         }
+
         //加入消息
         msgs.get(topic).add(msg);
 
@@ -64,6 +65,7 @@ public class DemoMessageStore {
 
         byte[] byteHeaderLength;
         byte[] headerContent;
+        byte[] compressFlag;
         byte[] byteBodyLength;
         byte[] bodyContent;
         String header;
@@ -81,6 +83,11 @@ public class DemoMessageStore {
         bufferedInputStream.read(headerContent);
         header = new String(headerContent);
 
+        //读取压缩标记
+        compressFlag = new byte[4];
+        bufferedInputStream.read(compressFlag);
+        int flag = byteArrayToInt(compressFlag);
+
         byteBodyLength = new byte[4];
         bufferedInputStream.read(byteBodyLength);
         int intBodyLength = byteArrayToInt(byteBodyLength);
@@ -89,8 +96,21 @@ public class DemoMessageStore {
             return null;
         }
 
+        //如果压缩过则先解压
         bodyContent = new byte[intBodyLength];
         bufferedInputStream.read(bodyContent);
+
+        if (flag == 1){
+            try {
+                bodyContent = decompressByte(bodyContent);
+                intBodyLength = bodyContent.length;
+            } catch (DataFormatException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
 
         DefaultKeyValue keyValue = makeKeyValue(header);
         DefaultMessage message = new DefaultMessage(bodyContent);
@@ -172,17 +192,25 @@ public class DemoMessageStore {
             fos = new FileOutputStream("data/" + topic, true);
             bos = new BufferedOutputStream(fos);
 
-
             ArrayList<ByteMessage> byteMessages = msgs.get(topic);
             for (ByteMessage message : byteMessages) {
 
-                byte[] header = header(message.headers());
-                byte[] headerLength = intToByteArray(header.length);
-                byte[] body = message.getBody();
-                byte[] bodyLength = intToByteArray(body.length);
+                byte[] header = header(message.headers());//保存消息头
+                byte[] headerLength = intToByteArray(header.length);//头部长度
+
+                //可以在这里添加压缩，添加一个压缩标记flag
+                //这里可以先判断消息体长度，超过1024则进行压缩
+                byte[] flag = intToByteArray(0);
+                byte[] body = message.getBody();//消息体
+                if (body.length > 1024) {//消息体长度大于1024则进行压缩
+                    flag = intToByteArray(1);
+                    body = compressByte(body);
+                }
+                byte[] bodyLength = intToByteArray(body.length);//消息体长度
 
                 bos.write(headerLength);
                 bos.write(header);
+                bos.write(flag);//写入压缩标记
                 bos.write(bodyLength);
                 bos.write(body);
 
@@ -219,8 +247,10 @@ public class DemoMessageStore {
                 (b[0] & 0xFF) << 24;
     }
 
+    //消息头处理为byte[]
     private static byte[] header(KeyValue headers) {
 
+        //0表示没有该消息头key
         Map<String, Object> map = headers.getMap();
         String result = String.valueOf(map.getOrDefault(MessageHeader.MESSAGE_ID, "0")) + "," +
                 map.getOrDefault(MessageHeader.TOPIC, "0") + "," +
@@ -241,6 +271,7 @@ public class DemoMessageStore {
         return result.getBytes();
     }
 
+    //int转为byte
     private static byte[] intToByteArray(int a) {
         byte[] b = new byte[]{
                 (byte) ((a >> 24) & 0xFF),
