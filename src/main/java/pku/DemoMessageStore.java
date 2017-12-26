@@ -37,7 +37,7 @@ public class DemoMessageStore {
         }
 
         //count从50000到30000到80000到100000，发现80000效率最高，直接把时间缩短一半，至于为什么，我们也不知道
-        if(count.get()>80000){
+        if (count.get() > 80000) {
             save();
             msgs.clear();
             count.set(0);
@@ -101,12 +101,21 @@ public class DemoMessageStore {
         bodyContent = new byte[intBodyLength];
         bufferedInputStream.read(bodyContent);
 
-        if (flag == 1){
+        if (flag == 1) {
             try {
                 bodyContent = decompressByte(bodyContent);//解压消息体
             } catch (DataFormatException e) {
                 e.printStackTrace();
             }
+        }
+        if (flag == 2) {//压缩过两次的body解压两次
+            try {
+                bodyContent = decompressByte(bodyContent);
+                bodyContent = decompressByte(bodyContent);
+            } catch (DataFormatException e) {
+                e.printStackTrace();
+            }
+
         }
 
         DefaultKeyValue keyValue = makeKeyValue(header);
@@ -203,6 +212,10 @@ public class DemoMessageStore {
                     flag = intToByteArray(1);
                     body = compressByte(body);
                 }
+                if (body.length > 1024) {//压缩之后body长度大于1024则再压缩一次
+                    flag = intToByteArray(2);
+                    body = compressByte(body);
+                }
                 byte[] bodyLength = intToByteArray(body.length);//消息体长度
 
                 bos.write(headerLength);
@@ -224,14 +237,16 @@ public class DemoMessageStore {
         AccessController.doPrivileged(new PrivilegedAction() {
             public Object run() {
                 try {
-                    Method getCleanerMethod = buffer.getClass().getMethod("cleaner",new Class[0]);
+                    Method getCleanerMethod = buffer.getClass().getMethod("cleaner", new Class[0]);
                     getCleanerMethod.setAccessible(true);
-                    sun.misc.Cleaner cleaner =(sun.misc.Cleaner)getCleanerMethod.invoke(buffer,new Object[0]);
+                    sun.misc.Cleaner cleaner = (sun.misc.Cleaner) getCleanerMethod.invoke(buffer, new Object[0]);
                     cleaner.clean();
-                } catch(Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-                return null;}});
+                return null;
+            }
+        });
 
     }
 
