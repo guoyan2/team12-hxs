@@ -36,7 +36,7 @@ public class DemoMessageStore {
             Is_Dir = true;
         }
 
-        //count从50000到30000到80000到100000，发现80000效率最高，至于为什么，我们也不知道
+        //count从50000到30000到80000到100000，发现80000效率最高，直接把时间缩短一半，至于为什么，我们也不知道
         if(count.get()>80000){
             save();
             msgs.clear();
