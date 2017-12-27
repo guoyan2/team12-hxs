@@ -108,15 +108,15 @@ public class DemoMessageStore {
                 e.printStackTrace();
             }
         }
-        if (flag == 2) {//压缩过两次的body解压两次
-            try {
-                bodyContent = decompressByte(bodyContent);
-                bodyContent = decompressByte(bodyContent);
-            } catch (DataFormatException e) {
-                e.printStackTrace();
-            }
-
-        }
+//        if (flag == 2) {//压缩过两次的body解压两次
+//            try {
+//                bodyContent = decompressByte(bodyContent);
+//                bodyContent = decompressByte(bodyContent);
+//            } catch (DataFormatException e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
 
         DefaultKeyValue keyValue = makeKeyValue(header);
         DefaultMessage message = new DefaultMessage(bodyContent);
@@ -208,14 +208,14 @@ public class DemoMessageStore {
                 //这里可以先判断消息体长度，超过1024则进行压缩
                 byte[] flag = intToByteArray(0);
                 byte[] body = message.getBody();//消息体
-                if (body.length > 1024) {//消息体长度大于1024则进行压缩
+                if (body.length > 2048) {//消息体长度大于1024则进行压缩
                     flag = intToByteArray(1);
                     body = compressByte(body);
                 }
-                if (body.length > 1024) {//压缩之后body长度大于1024则再压缩一次
-                    flag = intToByteArray(2);
-                    body = compressByte(body);
-                }
+//                if (body.length > 1024) {//压缩之后body长度大于1024则再压缩一次
+//                    flag = intToByteArray(2);
+//                    body = compressByte(body);
+//                }
                 byte[] bodyLength = intToByteArray(body.length);//消息体长度
 
                 bos.write(headerLength);
